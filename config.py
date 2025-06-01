@@ -2,7 +2,7 @@
 # Environment settings
 env = {
     "size": 1.0,
-    "lambda_rate": 100,
+    "lambda_rate": 10,
     "resource_energy": 1.0
 }
 

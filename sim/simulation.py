@@ -13,18 +13,23 @@ class Simulation:
         self.env.spawn_resources(dt)
 
         for agent in self.agents[:]:  # Copy to safely modify during iteration
-            agent.maybe_tumble(self.config['eta'], dt)
+            closest_resource = agent.closest_food_in_range(self.env.resources, self.env.size)
+
+            if closest_resource != None:
+                closest_resource_pos = closest_resource[0]
+                closest_resource_idx = closest_resource[1]
+                agent.set_theta_to_resource(closest_resource_pos,self.env.size)
+            else:
+                agent.maybe_tumble(self.config['eta'], dt)
+            
             agent.move(dt, self.env.size)
             agent.consume_energy(self.config['c_s'], self.config['c_a'], dt)
 
             # Resource consumption
-            consumed = False
-            for i, res in enumerate(self.env.resources):
-                if np.linalg.norm(agent.pos - res) < agent.acuity:
-                    agent.energy += self.env.resource_energy
-                    self.env.remove_resource(i)
-                    consumed = True
-                    break  # only consume one resource per step
+            if closest_resource != None and np.linalg.norm(agent.pos - closest_resource_pos) < 0.01:
+                agent.energy += self.env.resource_energy
+                self.env.remove_resource(closest_resource_idx)
+        
 
             # Reproduction
             if agent.energy > self.config['E_birth_threshold']:
