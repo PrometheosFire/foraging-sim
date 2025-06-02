@@ -15,4 +15,4 @@ if __name__ == "__main__":
 }
 
     sim = Simulation(sim_config)
-    animate(sim, steps=200, dt=0.1, interval=10)
+    animate(sim, steps=2000, dt=0.1, interval=1)
