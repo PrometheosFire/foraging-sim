@@ -56,9 +56,12 @@ def plot_population(df):
 def plot_distributions(df):
     # Plots the distribution of phenotypes (speed vs acuity) in the last generation
     last_gen = df[df["generation"] == df["generation"].max()]
-    sns.kdeplot(data=last_gen, x="speed", y="acuity", fill=True)
-    plt.title("Phenotype distribution (last generation)")
-    plt.xlabel("Speed")
-    plt.ylabel("Acuity")
-    plt.grid(True)
-    plt.show()
+    if len(last_gen) > 1:
+        sns.kdeplot(data=last_gen, x="speed", y="acuity", fill=True)
+        plt.title("Phenotype distribution (last generation)")
+        plt.xlabel("Speed")
+        plt.ylabel("Acuity")
+        plt.grid(True)
+        plt.show()
+    else:
+        print("Not enough data to plot phenotype distribution.")
