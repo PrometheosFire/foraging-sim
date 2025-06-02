@@ -8,14 +8,37 @@ class Simulation:
         self.agents = [Agent(**params) for params in config['initial_agents']]
         self.config = config
         self.time = 0.0
+        self.rng = np.random.default_rng()
+
+    def prob_birth(self, E, dt):
+        """
+        Compute probability of reproduction during dt, based on metabolic energy.
+        """
+        alpha = self.config['alpha']
+        beta = self.config['beta']
+        K_b = self.config['K_b']
+        E = np.maximum(E, 1e-12)
+        rate = beta * (E ** alpha) / (E ** alpha + K_b ** alpha)
+        return 1 - np.exp(-rate * dt)
+    
+    def prob_death(self, E, dt):
+        """
+        Compute probability of death during dt, based on metabolic energy.
+        """
+        alpha = self.config['alpha']
+        delta = self.config['delta']
+        delta_0 = self.config['delta_0']
+        K_d = self.config['K_d']
+        E = np.maximum(E, 1e-12)
+        rate =  delta_0 + delta * (K_d ** alpha) / (E ** alpha + K_d ** alpha)
+        return 1 - np.exp(-rate * dt)
 
     def step(self, dt):
         self.env.spawn_resources(dt)
         
         i = 0
         ressources_consumed = {}
-        agents_copy = self.agents[:]
-        for agent in agents_copy:  # Copy to safely modify during iteration
+        for agent in self.agents:  # Copy to safely modify during iteration
             out = agent.move(dt, self.env.size, self.env.resources)
             if out is not None:
                 resource_idx = out[0]
@@ -30,18 +53,23 @@ class Simulation:
             self.env.remove_resource(index)
             self.agents[values[0]].energy += self.env.resource_energy
         
-        for agent in agents_copy:
+        survivors = []
 
+        for agent in self.agents[:]:
             # Reproduction
-            if agent.energy > self.config['E_birth_threshold']:
-                self.agents.append(agent.reproduce(
+            if self.rng.random() < self.prob_birth(agent.energy, dt):
+                survivors.append(agent.reproduce(
                     self.config['sigma_s'],
                     self.config['sigma_a']
                 ))
 
             # Death
-            if agent.energy <= 0:
-                self.agents.remove(agent)
+            if self.rng.random() < self.prob_death(agent.energy, dt):
+                continue
+
+            survivors.append(agent)
+        
+        self.agents = survivors
 
         """
         for agent in self.agents[:]:  # Copy to safely modify during iteration

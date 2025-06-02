@@ -18,10 +18,11 @@ class Agent:
         if resources is None:
             self.run(dt, domain_size)
             self.maybe_tumble(eta=1.0, dt=dt)
+            self.consume_energy(dt)
             return None
         
         resource_pos, resource_index, resource_dist = resources
-        self.set_theta_to_resource(resources[0], domain_size)
+        self.set_theta_to_resource(resource_pos, domain_size)
         self.run(dt, domain_size)
         self.consume_energy(dt)
 
