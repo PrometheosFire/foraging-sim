@@ -12,7 +12,13 @@ if __name__ == "__main__":
     "c_a": config.c_a,
     "sigma_s": config.sigma_s,
     "sigma_a": config.sigma_a,
-    "E_birth_threshold": config.E_birth_threshold
+    "E_birth_threshold": config.E_birth_threshold,
+    "alpha": config.alpha,
+    "beta": config.beta,
+    "delta": config.delta,
+    "delta_0": config.delta_0,
+    "K_b": config.K_b,
+    "K_d": config.K_d
 }
 
     sim = Simulation(sim_config)
