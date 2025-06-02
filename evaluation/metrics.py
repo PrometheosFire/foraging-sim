@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import pearsonr
 
-def get_dataframe(agent_list, generation):
+def collect_statistics(agent_list, generation):
     data = []
     for agent in agent_list:            # For each agent in the generation
         data.append({
@@ -44,11 +44,7 @@ def plot_means(df):
     plt.show()
 
 
-# Plots population size over generations
 def plot_population(df):
-    """
-    Plots the number of alive agents per generation.
-    """
     pop = population_size(df)
     pop.plot(title="Population size per generation")
     plt.ylabel("Number of agents")
@@ -57,11 +53,8 @@ def plot_population(df):
     plt.show()
 
 
-# Plots the distribution of phenotypes (speed vs acuity) in the final generation
 def plot_distributions(df):
-    """
-    Creates a density plot of speed vs acuity for the final generation.
-    """
+    # Plots the distribution of phenotypes (speed vs acuity) in the last generation
     last_gen = df[df["generation"] == df["generation"].max()]
     sns.kdeplot(data=last_gen, x="speed", y="acuity", fill=True)
     plt.title("Phenotype distribution (last generation)")
@@ -69,11 +62,3 @@ def plot_distributions(df):
     plt.ylabel("Acuity")
     plt.grid(True)
     plt.show()
-
-
-# Placeholder function if needed externally (optional)
-def collect_statistics():
-    """
-    Placeholder for future use.
-    """
-    return {}
