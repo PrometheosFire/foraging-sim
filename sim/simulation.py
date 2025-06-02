@@ -15,6 +15,8 @@ class Simulation:
         for agent in self.agents[:]:  # Copy to safely modify during iteration
             closest_resource = agent.closest_food_in_range(self.env.resources, self.env.size)
 
+            starting_pos = agent.pos.copy()
+
             if closest_resource != None:
                 closest_resource_pos = closest_resource[0]
                 closest_resource_idx = closest_resource[1]
@@ -24,9 +26,11 @@ class Simulation:
             
             agent.move(dt, self.env.size)
             agent.consume_energy(self.config['c_s'], self.config['c_a'], dt)
+            
+            ending_pos = agent.pos
 
             # Resource consumption
-            if closest_resource != None and np.linalg.norm(agent.pos - closest_resource_pos) < 0.01:
+            if closest_resource != None and intercepts(starting_pos, ending_pos, closest_resource_pos, self.env.size):
                 agent.energy += self.env.resource_energy
                 self.env.remove_resource(closest_resource_idx)
         
@@ -43,3 +47,14 @@ class Simulation:
                 self.agents.remove(agent)
 
         self.time += dt
+
+def torus_displacement(a, b, size):
+    """Shortest displacement from a to b on a torus."""
+    return (np.array(b) - np.array(a) + size / 2) % size - size / 2
+
+def intercepts(start_pos, end_pos, resource_pos, size):
+    to_resource = torus_displacement(start_pos, resource_pos, size)
+    to_end = torus_displacement(start_pos, end_pos, size)
+    dist_to_resource = np.linalg.norm(to_resource)
+    dist_to_end = np.linalg.norm(to_end)
+    return dist_to_resource <= dist_to_end
