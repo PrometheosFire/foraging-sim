@@ -9,8 +9,8 @@ class Agent:
     energy: float    # Metabolic energy
     theta: float     # Movement direction in radians
 
-    c_a: float = 0.005
-    c_s: float = 0.01
+    c_a: float
+    c_s: float
 
 
     def move(self, dt: float, domain_size, resources):
@@ -57,7 +57,9 @@ class Agent:
             speed=child_speed,
             acuity=child_acuity,
             energy=child_energy,
-            theta=np.random.uniform(0, 2 * np.pi)
+            theta=np.random.uniform(0, 2 * np.pi),
+            c_a=self.c_a,
+            c_s=self.c_s
         )
     
     def closest_food_in_range(self, resources, size):
