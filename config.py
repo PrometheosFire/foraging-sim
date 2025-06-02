@@ -2,20 +2,17 @@
 # Environment settings
 env = {
     "size": 1.0,
-    "lambda_rate": 5,
+    "lambda_rate": 0,
     "resource_energy": 1.0
 }
 
 # Initial agent settings
-initial_agents = [
-    {
-        "pos": [0.5, 0.5],
-        "speed": 0.2,
-        "acuity": 0.05,
-        "energy": 5.0,
-        "theta": 0.0
+initial_agents = {
+        "n_agents": 10,
+        "starting_energy": 10.0,
+        "size": env["size"]
     }
-]
+
 
 # Simulation parameters
 eta = 0.1
