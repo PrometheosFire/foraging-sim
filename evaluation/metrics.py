@@ -4,56 +4,38 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import pearsonr
 
-# Converts a list of agents into a DataFrame with relevant attributes
 def get_dataframe(agent_list, generation):
-    """
-    Extracts agent statistics into a DataFrame for a given generation.
-    Assumes agents have attributes: speed, acuity, energy, pos.
-    An agent is considered 'alive' if energy > 0.
-    """
     data = []
-    for agent in agent_list:
+    for agent in agent_list:            # For each agent in the generation
         data.append({
             "generation": generation,
-            "speed": agent.speed,
-            "acuity": agent.acuity,
-            "energy": agent.energy,
-            "alive": agent.energy > 0
+            "speed": agent.speed,       # Extracts agent's speed
+            "acuity": agent.acuity,     # Extracts agent's sensory range
+            "energy": agent.energy,     # Extracts agent's metabolic energy
+            "alive": agent.energy > 0   # An agent is considered 'alive' if energy > 0
         })
     return pd.DataFrame(data)
 
 
-# Computes average values of speed, acuity, and energy over generations
 def compute_means(df):
-    """
-    Returns average speed, acuity, and energy for each generation.
-    """
+    # Compute average values of speed, acuity, and energy for each generation
     return df.groupby("generation")[["speed", "acuity", "energy"]].mean()
 
 
-# Calculates population size (number of alive agents) per generation
 def population_size(df):
-    """
-    Returns the number of alive agents in each generation.
-    """
+    # Compute population size (number of alive agents) in each generation
     return df[df["alive"]].groupby("generation").size()
 
 
-# Calculates the Pearson correlation between speed and acuity in the final generation
 def correlation(df):
-    """
-    Returns Pearson correlation between speed and acuity in the last generation.
-    """
+    # Last generation (maximum generation value)
     last_gen = df[df["generation"] == df["generation"].max()]
+    # Compute Pearson correlation between speed and acuity
     corr, _ = pearsonr(last_gen["speed"], last_gen["acuity"])
     return corr
 
 
-# Plots average values over generations
 def plot_means(df):
-    """
-    Plots mean speed, acuity, and energy over time.
-    """
     means = compute_means(df)
     means.plot(title="Average values per generation")
     plt.ylabel("Mean value")
