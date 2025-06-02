@@ -11,7 +11,39 @@ class Simulation:
 
     def step(self, dt):
         self.env.spawn_resources(dt)
+        
+        i = 0
+        ressources_consumed = {}
+        agents_copy = self.agents[:]
+        for agent in agents_copy:  # Copy to safely modify during iteration
+            out = agent.move(dt, self.env.size, self.env.resources)
+            if out is not None:
+                resource_idx = out[0]
+                dist_diff = out[1]
+                if resource_idx not in ressources_consumed or ressources_consumed[resource_idx][1] > dist_diff:
+                    ressources_consumed[resource_idx] = (i, dist_diff)
+                
+            i += 1
 
+        # Remove resources in descending order of indices to avoid shifting issues
+        for index, values in sorted(ressources_consumed.items(), key=lambda x: x[0], reverse=True):
+            self.env.remove_resource(index)
+            self.agents[values[0]].energy += self.env.resource_energy
+        
+        for agent in agents_copy:
+
+            # Reproduction
+            if agent.energy > self.config['E_birth_threshold']:
+                self.agents.append(agent.reproduce(
+                    self.config['sigma_s'],
+                    self.config['sigma_a']
+                ))
+
+            # Death
+            if agent.energy <= 0:
+                self.agents.remove(agent)
+
+        """
         for agent in self.agents[:]:  # Copy to safely modify during iteration
             closest_resource = agent.closest_food_in_range(self.env.resources, self.env.size)
 
@@ -45,6 +77,7 @@ class Simulation:
             # Death
             if agent.energy <= 0:
                 self.agents.remove(agent)
+        """
 
         self.time += dt
 
