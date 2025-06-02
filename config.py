@@ -2,7 +2,7 @@
 # Environment settings
 env = {
     "size": 1.0,
-    "lambda_rate": 10,
+    "lambda_rate": 200,
     "resource_energy": 1.0
 }
 
@@ -11,7 +11,7 @@ initial_agents = [
     {
         "pos": [0.5, 0.5],
         "speed": 0.2,
-        "acuity": 0.1,
+        "acuity": 0.05,
         "energy": 5.0,
         "theta": 0.0
     }
