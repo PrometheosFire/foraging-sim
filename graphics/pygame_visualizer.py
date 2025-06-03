@@ -7,7 +7,7 @@ WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 
-def run_pygame(simulation, steps=1000, dt=0.1, scale=600):
+def run_pygame(simulation, steps=1000, initial_dt=0.1, scale=600):
     pygame.init()
     font = pygame.font.SysFont("Arial", 16)
     size_px = int(simulation.env.size * scale)
@@ -20,11 +20,20 @@ def run_pygame(simulation, steps=1000, dt=0.1, scale=600):
     scatter_plot = DualPlot()
 
     # Create a surface for text backgrounds
-    text_bg = pygame.Surface((100, 50), pygame.SRCALPHA)  # Semi-transparent
+    text_bg = pygame.Surface((100, 70), pygame.SRCALPHA)  # Semi-transparent
     text_bg.fill((0, 0, 0, int(0.75*256)))  # Black with 50% opacity
     
     running = True
     step = 0
+    
+    # Simulation control variables
+    dt = initial_dt
+    paused = False
+    speed_multiplier = 1.0
+    min_speed = 0.1  # Minimum speed (1/10th normal)
+    max_speed = 10.0  # Maximum speed (10x normal)
+    min_dt = 0.01  # Maximum speed (10x normal)
+    max_dt = 1.0   # Minimum speed (1/10th normal)
 
     while running and step < steps:
         screen.fill(WHITE)
@@ -33,9 +42,24 @@ def run_pygame(simulation, steps=1000, dt=0.1, scale=600):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    paused = not paused  # Toggle pause
+                elif event.key == pygame.K_RIGHT:
+                    speed_multiplier += 0.1  # Speed up
+                elif event.key == pygame.K_LEFT:
+                    speed_multiplier -= 0.1  # Slow down
+                elif event.key == pygame.K_r:  # Reset speed
+                    speed_multiplier = 1.0
+                    dt = initial_dt
+                speed_multiplier = max(min_speed, min(max_speed, speed_multiplier))  # Clamp dt to limits
+                dt = initial_dt* speed_multiplier  # Apply speed multiplier
 
         # Simulation step
-        simulation.step(dt)
+        # Only update simulation if not paused
+        if not paused:
+            simulation.step(dt)
+            step += 1
 
         # Draw environment (original visualization)
         for res in simulation.env.resources:
@@ -57,8 +81,10 @@ def run_pygame(simulation, steps=1000, dt=0.1, scale=600):
         # Labels with better contrast
         time_label = font.render(f"Time: {simulation.time:.2f}", True, (255, 255, 255))  # White text
         count_label = font.render(f"Agents: {len(simulation.agents)}", True, (255, 255, 255))
+        time_step = font.render(f"Time Step: {dt:.2f}", True, (255, 255, 255))
         screen.blit(time_label, (10, 10))
         screen.blit(count_label, (10, 30))
+        screen.blit(time_step, (10, 50))
 
         pygame.display.flip()
         clock.tick(60)

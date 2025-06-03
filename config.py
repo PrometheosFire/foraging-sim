@@ -29,7 +29,7 @@ K_d = 1
 
 # Initial agent settings
 initial_agents = {
-        "n_agents": 10000,
+        "n_agents": 1000,
         "starting_energy": 10.0,
         "size": env["size"],
         "c_a": c_a,
