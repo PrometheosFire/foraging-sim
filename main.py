@@ -1,6 +1,7 @@
 from sim.simulation import Simulation
 from graphics.visualizer import animate
 from graphics.pygame_visualizer import run_pygame
+from graphics.dataLoader import run_simulation
 import config # or define config inline
 
 if __name__ == "__main__":
@@ -22,4 +23,5 @@ if __name__ == "__main__":
 
     sim = Simulation(sim_config)
     #animate(sim, steps=2000, dt=0.1, interval=1)
-    run_pygame(sim, steps=10000, initial_dt=0.1)
+    #run_pygame(sim, steps=10000, initial_dt=0.1)
+    _ = run_simulation(sim_config, sim, steps=100, dt=0.1)
