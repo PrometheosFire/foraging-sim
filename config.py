@@ -2,16 +2,16 @@
 # Environment settings
 env = {
     "size": 1.0,
-    "lambda_rate": 100,
-    "resource_energy": 2
+    "lambda_rate": 400,
+    "resource_energy": 0.5
 }
 
 
 
 # Simulation parameters
 eta = 0.1
-sigma_s = 0.01
-sigma_a = 0.01
+sigma_s = 0
+sigma_a = 0
 
 size = 1.0
 lambda_rate = 100
@@ -33,6 +33,8 @@ initial_agents = {
         "starting_energy": 10.0,
         "size": env["size"],
         "c_a": c_a,
-        "c_s": c_s
+        "c_s": c_s,
+        "C": 1,
+        "mode": "SAME_COST"
     }
 

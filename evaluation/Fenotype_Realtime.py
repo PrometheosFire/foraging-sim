@@ -18,7 +18,7 @@ class DualPlot:
         self.scatter = self.ax1.scatter([], [], s=10, alpha=0.6, edgecolors='none')
         self.ax1.grid(True, alpha=0.3)
         self.max_speed = 0.1
-        self.max_acuity = 0.1
+        self.max_acuity = 0.07
         
         # Configure population plot (bottom)
         self.ax2.set_xlabel('Time (seconds)', fontsize=8)
@@ -40,13 +40,12 @@ class DualPlot:
         
         if len(speeds) > 0:
             # Get 95th percentile to avoid outliers dominating scale
-            self.max_speed = max(0.1, np.percentile(speeds, 95) * 1.1)
-            self.max_acuity = max(0.1, np.percentile(acuities, 95) * 1.1)
+            #self.max_speed = max(0.1, np.percentile(speeds, 95) * 1.1)
+            #self.max_acuity = max(0.1, np.percentile(acuities, 95) * 1.1)
             
             # Make axes proportional
-            max_dim = max(self.max_speed, self.max_acuity)
-            self.ax1.set_xlim(0, max_dim)
-            self.ax1.set_ylim(0, max_dim)
+            self.ax1.set_xlim(0, self.max_speed)
+            self.ax1.set_ylim(0, self.max_acuity)
             self.scatter.set_offsets(np.column_stack((speeds, acuities)))
         
         # Update population plot with dynamic Y scaling

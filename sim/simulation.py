@@ -120,12 +120,21 @@ def intercepts(start_pos, end_pos, resource_pos, size):
     dist_to_end = np.linalg.norm(to_end)
     return dist_to_resource <= dist_to_end
 
-def initialize_agents(n_agents: int, starting_energy: float, size: float, c_a: float, c_s: float):
+def initialize_agents(n_agents: int, starting_energy: float, size: float, c_a: float, c_s: float, C: float, mode: str):
     agents = []
     for _ in range(n_agents):
         pos = np.random.rand(2) * size
-        speed = np.random.uniform(0, 0.2)
-        acuity = np.random.uniform(0, 0.2)
+        if (mode == "SAME_COST"):
+            speed = np.random.uniform(0, np.sqrt(C/c_s))
+            acuity = get_acuity_from_speed(speed, c_a, c_s, C)
+        elif (mode == "UNIFORM") :
+            speed = np.random.uniform(0, 0.2)
+            acuity = np.random.uniform(0, 0.2)
         theta = np.random.uniform(0, 2 * np.pi)
         agents.append(Agent(pos=pos, speed=speed, acuity=acuity, energy=starting_energy, theta=theta, c_a=c_a, c_s=c_s))
     return agents
+
+def get_acuity_from_speed(speed: float, c_a:float, c_s:float, C: float):
+    return (C - c_s*speed**2) / c_a
+
+

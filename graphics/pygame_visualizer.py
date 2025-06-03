@@ -6,6 +6,7 @@ from evaluation.Fenotype_Realtime import DualPlot
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
+BLACK = (30,30,30)
 
 def run_pygame(simulation, steps=1000, initial_dt=0.1, scale=600):
     pygame.init()
@@ -36,7 +37,7 @@ def run_pygame(simulation, steps=1000, initial_dt=0.1, scale=600):
     max_dt = 1.0   # Minimum speed (1/10th normal)
 
     while running and step < steps:
-        screen.fill(WHITE)
+        screen.fill(BLACK)
 
         # Event handler
         for event in pygame.event.get():
