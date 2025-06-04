@@ -8,8 +8,10 @@ class SimulationMetrics:
     def __init__(self, config):
         """Initialize metrics collector with empty DataFrames"""
         self.config = config
-        self.agent_data = pd.DataFrame(columns=["step", "speed", "acuity", "energy"])
-        self.resource_data = pd.DataFrame(columns=["step", "x", "y"]) 
+        self.agent_data = pd.DataFrame(columns=["step", "speed", "acuity", "energy"]).astype({
+            "step": int, "speed": float, "acuity": float, "energy": float })
+        self.resource_data = pd.DataFrame(columns=["step", "x", "y"]).astype({
+            "step": int, "x": float, "y": float})
         self.current_step = 0
     
     def collect_agents(self, agent_list, step):
@@ -27,8 +29,9 @@ class SimulationMetrics:
                 "energy": agent.energy
             })
         
-        self.agent_data = pd.concat([self.agent_data, pd.DataFrame(step_data)], 
-                                 ignore_index=True)
+        if step_data:  # Only concat if not empty
+            new_data = pd.DataFrame(step_data, columns=self.agent_data.columns)
+            self.agent_data = pd.concat([self.agent_data, new_data], ignore_index=True)
         self.current_step = step
     
     def collect_resources(self, resource_list):
@@ -44,9 +47,9 @@ class SimulationMetrics:
                 "x": x,
                 "y": y
             })
-        
-        self.resource_data = pd.concat([self.resource_data, pd.DataFrame(resource_records)],
-                                     ignore_index=True)
+        if resource_records:  # Only concat if not empty
+            new_data = pd.DataFrame(resource_records, columns=self.resource_data.columns)
+            self.resource_data = pd.concat([self.resource_data, new_data], ignore_index=True)
     
     
     def get_means(self):
