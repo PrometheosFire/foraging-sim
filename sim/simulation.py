@@ -34,6 +34,7 @@ class Simulation:
         return 1 - np.exp(-rate * dt)
 
     def step(self, dt):
+        
         self.env.spawn_resources(dt)
         
         i = 0
@@ -120,7 +121,7 @@ def intercepts(start_pos, end_pos, resource_pos, size):
     dist_to_end = np.linalg.norm(to_end)
     return dist_to_resource <= dist_to_end
 
-def initialize_agents(n_agents: int, starting_energy: float, size: float, c_a: float, c_s: float, C: float, mode: str):
+def initialize_agents(n_agents: int, starting_energy: float, size: float, c_a: float, c_s: float, C: float, mode: str, speed: float , acuity: float):
     agents = []
     for _ in range(n_agents):
         pos = np.random.rand(2) * size
@@ -130,6 +131,9 @@ def initialize_agents(n_agents: int, starting_energy: float, size: float, c_a: f
         elif (mode == "UNIFORM") :
             speed = np.random.uniform(0, 0.2)
             acuity = np.random.uniform(0, 0.2)
+        elif (mode == "DEFINED"):
+            speed = speed
+            acuity = acuity
         theta = np.random.uniform(0, 2 * np.pi)
         agents.append(Agent(pos=pos, speed=speed, acuity=acuity, energy=starting_energy, theta=theta, c_a=c_a, c_s=c_s))
     return agents
