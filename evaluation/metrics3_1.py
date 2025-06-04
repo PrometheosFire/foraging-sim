@@ -3,13 +3,12 @@ import numpy as np
 import pandas as pd
 
 class SimulationMetrics:
-    def __init__(self, rate):
+    def __init__(self):
         """Initialize metrics collector with empty DataFrames"""
-        self.rate = rate  # Store the rate for later use
         self.agent_data = pd.DataFrame(columns=["energy", "speed", "acuity", "Rate"]).astype({
             "energy": float, "speed": float, "acuity": float, "Rate": float })
         
-    def collect_agent(self, agent):
+    def collect_agent(self, agent, rate):
         """
         Record agent statistics
         Args:
@@ -19,7 +18,7 @@ class SimulationMetrics:
             "energy": agent.energy,
             "speed": agent.speed,
             "acuity": agent.acuity,
-            "Rate": self.rate
+            "Rate": rate
         }
         self.agent_data = pd.concat([self.agent_data, pd.DataFrame([agent_data])], ignore_index=True)
 
@@ -41,6 +40,6 @@ class SimulationMetrics:
         Returns:
             SimulationMetrics object with loaded data
         """
-        metrics = cls(rate)
+        metrics = cls()
         metrics.agent_data = pd.read_csv(filename)
         return metrics

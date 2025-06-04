@@ -29,21 +29,25 @@ if __name__ == "__main__":
         "K_d": config.K_d
     }
 
-    max_steps = 100
+    max_steps = 1000
     dt = 0.1
     max_acuity = 0.2
     max_speed = 0.2
     phenotype_step = 0.01
 
-    rate = sim_config["env"]["resource_cap"]
+    rates = [100, 200, 300]  
+    metrics = SimulationMetrics()
 
-    metrics = SimulationMetrics(rate)
+    for i in range(3):
+        rate = rates[i]
+        sim_config["env"]["resource_cap"] = rate
+        print(f"Running simulations for resource rate: {rate}")
+        for acuity in np.arange(0, max_acuity, phenotype_step):
+                for speed in np.arange(0, max_speed, phenotype_step):
+                    sim_config["initial_agents"]["acuity"] = acuity
+                    sim_config["initial_agents"]["speed"] = speed
+                    sim = Simulation(sim_config)
+                    print(f"Running simulation with acuity={acuity}, speed={speed}...")
+                    _ = run_simulation(sim, metrics, rate, steps=max_steps, dt=dt)
 
-    for acuity in np.arange(0, max_acuity, phenotype_step):
-            for speed in np.arange(0, max_speed, phenotype_step):
-                sim_config["initial_agents"]["acuity"] = acuity
-                sim_config["initial_agents"]["speed"] = speed
-                sim = Simulation(sim_config)
-                _ = run_simulation(sim, metrics, steps=max_steps, dt=dt)
-
-    metrics.save_to_csv(f"evaluation/simulation_results/3_1Rate{rate}.csv")
+    metrics.save_to_csv(f"evaluation/simulation_results/3_1Rate100_200_300.csv")
