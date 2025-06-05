@@ -20,8 +20,8 @@ def run_simulation(simulation, metrics, steps=1000, dt=0.1):
             elapsed = time.time() - start_time
             print(f"| {step:>6} | {len(simulation.agents):>7} | {len(simulation.env.resources):>9} | {elapsed:>6.1f} |")
         
+        metrics.collect_agents(simulation.agents, step)
         # Collect data
     
-    metrics.collect_agents(simulation.agents)
 
     return metrics

@@ -28,13 +28,13 @@ K_d = 1
 
 # Initial agent settings
 initial_agents = {
-        "n_agents": 500,
+        "n_agents": 50,
         "starting_energy": 10,
         "size": env["size"],
         "c_a": c_a,
         "c_s": c_s,
         "C": 1,
         "mode": "DEFINED",
-        "speed": 0.01,
-        "acuity": 0.01
+        "speed": 0.06,
+        "acuity": 0.06
     }
