@@ -1,6 +1,7 @@
 import numpy as np
 from agents.agent import Agent
 from env.environment import Environment
+from env.spatial_grid import SpatialGrid
 
 class Simulation:
     def __init__(self, config):
@@ -40,18 +41,19 @@ class Simulation:
         i = 0
         ressources_consumed = {}
         for agent in self.agents:  # Copy to safely modify during iteration
-            out = agent.move(dt, self.env.size, self.env.resources)
+            out = agent.move(dt, self.env.size, self.env.grid.nearby(agent.pos, agent.acuity))
             if out is not None:
                 resource_idx = out[0]
                 dist_diff = out[1]
-                if resource_idx not in ressources_consumed or ressources_consumed[resource_idx][1] > dist_diff:
-                    ressources_consumed[resource_idx] = (i, dist_diff)
+                resource_pos = out[2]
+                if resource_pos not in ressources_consumed or ressources_consumed[resource_pos][1] > dist_diff:
+                    ressources_consumed[resource_pos] = (i, dist_diff)
                 
             i += 1
 
         # Remove resources in descending order of indices to avoid shifting issues
-        for index, values in sorted(ressources_consumed.items(), key=lambda x: x[0], reverse=True):
-            self.env.remove_resource(index)
+        for pos, values in ressources_consumed.items():
+            self.env.remove_resource(pos)
             self.agents[values[0]].energy += self.env.resource_energy
         
         survivors = []

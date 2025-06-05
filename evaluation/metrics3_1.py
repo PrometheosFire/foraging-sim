@@ -5,8 +5,8 @@ import pandas as pd
 class SimulationMetrics:
     def __init__(self):
         """Initialize metrics collector with empty DataFrames"""
-        self.agent_data = pd.DataFrame(columns=["meals", "speed", "acuity", "Rate"]).astype({
-            "meals": int, "speed": float, "acuity": float, "Rate": float })
+        self.agent_data = pd.DataFrame(columns=["energy", "speed", "acuity", "Rate"]).astype({
+            "energy": float, "speed": float, "acuity": float, "Rate": float })
         
     def collect_agent(self, agent, rate):
         """
@@ -15,7 +15,7 @@ class SimulationMetrics:
             agent: Agent object
         """
         agent_data = {
-            "meals": agent.meals,
+            "energy": agent.energy,
             "speed": agent.speed,
             "acuity": agent.acuity,
             "Rate": rate
