@@ -31,5 +31,5 @@ if __name__ == "__main__":
 
     sim = Simulation(sim_config)
     # animate(sim, steps=2000, dt=0.1, interval=1)
-    # run_pygame(sim, steps=10000, initial_dt=0.1)
-    _ = run_simulation(sim_config, sim, steps=-1, dt=0.1)
+    run_pygame(sim, steps=10000, initial_dt=0.1)
+    #_ = run_simulation(sim_config, sim, steps=-1, dt=0.1)
