@@ -11,6 +11,7 @@ class Agent:
 
     c_a: float
     c_s: float
+    meals: int = 0   # Meals counter
 
 
     def move(self, dt: float, domain_size, resources):
@@ -28,6 +29,7 @@ class Agent:
 
         dist_diff = resource_dist - self.speed *dt
         if dist_diff <= 0:
+            self.meals += 1
             return resource_index, dist_diff
         else:
             return None
