@@ -1,10 +1,8 @@
 import time
 import pandas as pd
-import os
-from evaluation.metrics3_1 import SimulationMetrics  # Your metrics class
 
 
-def run_simulation(simulation, metrics : SimulationMetrics, rate, steps=1000, dt=0.1):
+def run_simulation(simulation, metrics, steps=1000, dt=0.1):
 
 
     start_time = time.time()
@@ -24,6 +22,6 @@ def run_simulation(simulation, metrics : SimulationMetrics, rate, steps=1000, dt
         
         # Collect data
     
-    metrics.collect_agent(simulation.agents[0], rate)
+    metrics.collect_agents(simulation.agents)
 
     return metrics

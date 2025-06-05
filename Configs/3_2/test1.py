@@ -4,7 +4,7 @@ env = {
     "size": 1.0,
     "resource_mode":"RATE", #RATE / CONSTANT
     "resource_energy": 1,
-    "lambda_rate": 20,     # only relevant for RATE mode
+    "lambda_rate": 200,     # only relevant for RATE mode
     "resource_cap":0      # only relevant for CONSTANT mode
 }
 
@@ -28,7 +28,7 @@ K_d = 1
 
 # Initial agent settings
 initial_agents = {
-        "n_agents": 1000,
+        "n_agents": 500,
         "starting_energy": 10,
         "size": env["size"],
         "c_a": c_a,
