@@ -1,8 +1,42 @@
 import numpy as np
 from collections import defaultdict
 
+PRECOMPUTED_OFFSETS = {
+    0: [[(0, 0)]],
+    1: [
+        [(0, 0)],
+        [(-1, 0), (1, 0), (0, -1), (0, 1),
+         (-1, -1), (-1, 1), (1, -1), (1, 1)]
+    ],
+    2: [
+        [(0, 0)],
+        [(-1, 0), (1, 0), (0, -1), (0, 1),
+         (-1, -1), (-1, 1), (1, -1), (1, 1)],
+        [(-2, 0), (2, 0), (0, -2), (0, 2),
+         (-2, -1), (-2, 1), (2, -1), (2, 1),
+         (-1, -2), (1, -2), (-1, 2), (1, 2),
+         (-2, -2), (-2, 2), (2, -2), (2, 2)]
+    ],
+    3: [
+        [(0, 0)],
+        [(-1, 0), (1, 0), (0, -1), (0, 1),
+         (-1, -1), (-1, 1), (1, -1), (1, 1)],
+        [(-2, 0), (2, 0), (0, -2), (0, 2),
+         (-2, -1), (-2, 1), (2, -1), (2, 1),
+         (-1, -2), (1, -2), (-1, 2), (1, 2),
+         (-2, -2), (-2, 2), (2, -2), (2, 2)],
+        [(-3, 0), (3, 0), (0, -3), (0, 3),
+         (-3, -1), (-3, 1), (3, -1), (3, 1),
+         (-1, -3), (1, -3), (-1, 3), (1, 3),
+         (-2, -3), (2, -3), (-2, 3), (2, 3),
+         (-3, -2), (-3, 2), (3, -2), (3, 2),
+         (-3, -3), (-3, 3), (3, -3), (3, 3)]
+    ]
+}
+
+
 class SpatialGrid:
-    def __init__(self, domain_size=1.0, cell_size=0.05):
+    def __init__(self, domain_size=1.0, cell_size=0.08):
         self.domain_size = domain_size
         self.cell_size = cell_size
         self.grid = defaultdict(list)
@@ -47,23 +81,41 @@ class SpatialGrid:
         for pos in positions:
             self.insert(tuple(pos))
 
+    def _generate_circle_offsets(self, range_cells):
+        """Generate cell offsets by ring level (level 0 first, then 1, 2...)"""
+        seen = set()
+        levels = []
+        for r in range(range_cells + 1):
+            level = []
+            for dx in range(-r, r + 1):
+                for dy in range(-r, r + 1):
+                    if max(abs(dx), abs(dy)) == r and (dx, dy) not in seen:
+                        seen.add((dx, dy))
+                        level.append((dx, dy))
+            levels.append(level)
+        return levels
+
     def nearby(self, pos, radius):
         """Return all resource positions within radius of pos"""
         cx, cy = self._cell_index(pos)
 
         range_cells = int(np.ceil(radius / self.cell_size))
+        offset_levels = PRECOMPUTED_OFFSETS.get(range_cells)
+        
+        if offset_levels is None:
+            offset_levels = self._generate_circle_offsets(range_cells)
 
         nearby_resources = []
-        for dx in range(-range_cells, range_cells + 1):
-            for dy in range(-range_cells, range_cells + 1):
+        for level in offset_levels:
+            for dx, dy in level:
                 nx = (cx + dx) % self.grid_width
                 ny = (cy + dy) % self.grid_width
                 cell = (nx, ny)
 
                 nearby_resources += self.grid.get(cell, [])
-                #for res in self.grid.get(cell, []):
-                #    if self._periodic_distance(pos, np.array(res)) < radius:
-                #        nearby_resources.append(res)
+
+            if nearby_resources:
+                return nearby_resources
 
         return nearby_resources
     

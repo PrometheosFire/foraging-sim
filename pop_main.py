@@ -29,7 +29,7 @@ if __name__ == "__main__":
         "K_d": config.K_d
     }
 
-    max_steps = 2000
+    max_steps = 10000
     dt = 0.1
     max_acuity = 0.1
     max_speed = 0.1
