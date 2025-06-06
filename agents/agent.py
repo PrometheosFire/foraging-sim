@@ -54,7 +54,7 @@ class Agent:
         child_acuity = max(0, self.acuity + np.random.normal(0, sigma_a))
         child_energy = self.energy / 2
         self.energy /= 2
-        return Agent(
+        return [Agent(
             pos=self.pos.copy(),
             speed=child_speed,
             acuity=child_acuity,
@@ -62,7 +62,7 @@ class Agent:
             theta=np.random.uniform(0, 2 * np.pi),
             c_a=self.c_a,
             c_s=self.c_s
-        )
+        )]
     
     def closest_food_in_range(self, resources, size):
         if not resources:

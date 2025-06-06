@@ -40,12 +40,11 @@ class RaptorAgent:
     def run(self, dt: float, domain_size: float = 1.0,  mode : str = "NORMAL", eta: float = 1.0):
         # Calculate displacement
         if mode == "POUNCE":
-            speed_mult = 2
+            speed_mult = 1.5
         else:
             speed_mult = 1
     
         dx = speed_mult * self.speed * dt * np.array([np.cos(self.theta), np.sin(self.theta)])
-        print(speed_mult*self.speed)
         self.pos = (self.pos + dx) % domain_size  # Periodic boundary
 
 

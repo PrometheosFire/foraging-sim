@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
 class DualPlot:
     def __init__(self, width=400, height=600):
@@ -11,62 +12,92 @@ class DualPlot:
         self.fig, (self.ax1, self.ax2) = plt.subplots(2, 1, figsize=(width/100, height/100),
                                                       gridspec_kw={'height_ratios': [2, 1]})
         self.canvas = FigureCanvasAgg(self.fig)
-        
+
         # Configure scatter plot (top)
         self.ax1.set_xlabel('Speed', fontsize=8)
         self.ax1.set_ylabel('Acuity', fontsize=8)
+        self.ax1.set_facecolor("#414141")
         self.scatter = self.ax1.scatter([], [], s=10, alpha=0.6, edgecolors='none')
         self.ax1.grid(True, alpha=0.3)
-        self.max_speed = 0.1
-        self.max_acuity = 0.07
-        
+        self.max_speed = 0.2
+        self.max_acuity = 0.2
+
         # Configure population plot (bottom)
         self.ax2.set_xlabel('Time (seconds)', fontsize=8)
         self.ax2.set_ylabel('Population', fontsize=8)
-        self.pop_line, = self.ax2.plot([], [], 'g-', linewidth=2)
+        self.ax2.set_facecolor("#414141")
         self.ax2.grid(True, alpha=0.3)
-        self.time_data = []
-        self.pop_data = []
         self.time_window = 100  # Show last 100 seconds
-        
-        # Set equal aspect ratio for phenotype plot
-        self.ax1.set_aspect('auto')  # We'll handle scaling manually
+
+        # Species color map
+        self.species_colors = {
+            'Agent': "#0000FF",
+            'SlothAgent': "#FFFF00",
+            'TurtleAgent': "#00FF00",
+            'RaptorAgent': "#FF0000",
+        }
+
+        # Data storage for population over time per species
+        self.species_data = defaultdict(lambda: {
+            "time": [],
+            "population": [],
+            "line": None
+        })
+
+        # Initialize lines for each species
+        for species, color in self.species_colors.items():
+            line, = self.ax2.plot([], [], color=color, label=species, linewidth=1.5)
+            self.species_data[species]["line"] = line
+
+        self.ax2.legend(fontsize=6)
         self.fig.tight_layout(pad=3.0)
 
+        # Set equal aspect ratio for phenotype plot
+        self.ax1.set_aspect('auto')
+
     def update(self, time, agents):
-        # Update scatter plot with proportional scaling
+        # ---------------- Scatter Plot ---------------- #
         speeds = np.array([a.speed for a in agents]) if agents else np.array([])
         acuities = np.array([a.acuity for a in agents]) if agents else np.array([])
-        
+
         if len(speeds) > 0:
-            # Get 95th percentile to avoid outliers dominating scale
-            #self.max_speed = max(0.1, np.percentile(speeds, 95) * 1.1)
-            #self.max_acuity = max(0.1, np.percentile(acuities, 95) * 1.1)
-            
-            # Make axes proportional
+            colors = [
+                self.species_colors.get(type(agent).__name__, 'gray')
+                for agent in agents
+            ]
             self.ax1.set_xlim(0, self.max_speed)
             self.ax1.set_ylim(0, self.max_acuity)
-            self.scatter.set_offsets(np.column_stack((speeds, acuities)))
-        
-        # Update population plot with dynamic Y scaling
-        population = len(agents)
-        self.time_data.append(time)
-        self.pop_data.append(population)
-        
-        # Trim data to time window
-        while len(self.time_data) > 1 and (time - self.time_data[0]) > self.time_window:
-            self.time_data.pop(0)
-            self.pop_data.pop(0)
-        
-        # Calculate Y-axis limits with buffer
-        current_max_pop = max(self.pop_data[-100:]) if self.pop_data else 1
-        #y_buffer = max(5, current_max_pop * 0.1)  # At least 5 units buffer
-        y_max = current_max_pop*2
-        
-        self.pop_line.set_data(self.time_data, self.pop_data)
+            self.scatter.remove()
+            self.scatter = self.ax1.scatter(speeds, acuities, c=colors, s=10, alpha=0.6, edgecolors='none')
+
+        # ---------------- Population Plot ---------------- #
+        # Count species
+        pop_counts = defaultdict(int)
+        for agent in agents:
+            species = type(agent).__name__
+            pop_counts[species] += 1
+
+        # Update each species line
+        for species, data in self.species_data.items():
+            data["time"].append(time)
+            data["population"].append(pop_counts.get(species, 0))  # 0 if no members
+
+            # Trim to time window
+            while data["time"] and (time - data["time"][0]) > self.time_window:
+                data["time"].pop(0)
+                data["population"].pop(0)
+
+            # Update line data
+            data["line"].set_data(data["time"], data["population"])
+
+        # Dynamic scaling
         self.ax2.set_xlim(max(0, time - self.time_window), max(time, self.time_window))
-        self.ax2.set_ylim(0, y_max)
-        
+        max_pop = max(
+            (max(data["population"]) for data in self.species_data.values() if data["population"]),
+            default=1
+        )
+        self.ax2.set_ylim(0, max_pop * 1.2)
+
         # Render to Pygame surface
         self.canvas.draw()
         buf = self.canvas.buffer_rgba()
