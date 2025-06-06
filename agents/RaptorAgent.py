@@ -33,7 +33,7 @@ class RaptorAgent:
         dist_diff = resource_dist - self.speed *dt
         if dist_diff <= 0:
             self.meals += 1
-            return resource_index, dist_diff
+            return resource_index, dist_diff, tuple(resource_pos)
         else:
             return None
 

@@ -128,20 +128,29 @@ def intercepts(start_pos, end_pos, resource_pos, size):
 
 def initialize_agents(n_agents: int, starting_energy: float, size: float, c_a: float, c_s: float, C: float, mode: str, speed: float , acuity: float):
     agents = []
-    for _ in range(n_agents):
+    for i in range(n_agents):
         pos = np.random.rand(2) * size
+        species = [Agent, SlothAgent, TurtleAgent, RaptorAgent]
         if (mode == "SAME_COST"):
             speed = np.random.uniform(0, np.sqrt(C/c_s))
             acuity = get_acuity_from_speed(speed, c_a, c_s, C)
+            AgentClass = Agent
         elif (mode == "UNIFORM") :
             speed = np.random.uniform(0, 0.2)
             acuity = np.random.uniform(0, 0.2)
+            AgentClass = Agent
         elif (mode == "DEFINED"):
             speed = speed
             acuity = acuity
+            AgentClass = Agent
+        elif (mode == "SPECIES"):
+            speed = np.random.uniform(0, 0.2)
+            acuity = np.random.uniform(0, 0.2)
+            AgentClass = species[i%4]
+
 
         theta = np.random.uniform(0, 2 * np.pi)
-        agents.append(RaptorAgent(pos=pos, speed=speed, acuity=acuity, energy=starting_energy, theta=theta, c_a=c_a, c_s=c_s))
+        agents.append(AgentClass(pos=pos, speed=speed, acuity=acuity, energy=starting_energy, theta=theta, c_a=c_a, c_s=c_s))
     return agents
 
 def get_acuity_from_speed(speed: float, c_a:float, c_s:float, C: float):

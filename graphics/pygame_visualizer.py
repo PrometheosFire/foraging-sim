@@ -1,12 +1,25 @@
 import pygame
 import numpy as np
 from evaluation.Fenotype_Realtime import DualPlot
+from agents.RaptorAgent import RaptorAgent
+from agents.SlothAgent import SlothAgent
+from agents.TurtleAgent import TurtleAgent
+from agents.agent import Agent
 
 # Colors
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 BLACK = (30,30,30)
+GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+
+color_map = {
+    RaptorAgent: RED,
+    TurtleAgent: GREEN,
+    SlothAgent: YELLOW,
+    Agent: BLUE
+}
 
 def run_pygame(simulation, steps=1000, initial_dt=0.1, scale=600):
     pygame.init()
@@ -65,11 +78,12 @@ def run_pygame(simulation, steps=1000, initial_dt=0.1, scale=600):
         # Draw environment (original visualization)
         for res in simulation.env.resources:
             pos_px = (int(res[0] * scale), int(res[1] * scale))
-            pygame.draw.rect(screen, RED, (*pos_px, 4, 4))
+            pygame.draw.rect(screen, WHITE, (*pos_px, 4, 4))
 
         for agent in simulation.agents:
+            agentColor = getAgentColor(agent)
             pos_px = (int(agent.pos[0] * scale), int(agent.pos[1] * scale))
-            pygame.draw.circle(screen, BLUE, pos_px, 3)
+            pygame.draw.circle(screen, agentColor, pos_px, 3)
 
         # Update scatter plot
         plot_surface = scatter_plot.update(simulation.time, simulation.agents)
@@ -92,3 +106,9 @@ def run_pygame(simulation, steps=1000, initial_dt=0.1, scale=600):
         step += 1
 
     pygame.quit()
+
+def getAgentColor(agent):
+    for spec, color in color_map.items():
+        if isinstance(agent, spec):
+            return color
+    return WHITE
