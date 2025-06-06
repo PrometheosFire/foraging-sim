@@ -32,14 +32,13 @@ if __name__ == "__main__":
     max_steps = 2000
     dt = 0.1
 
-    MC_simulations = 10
-    env_param = ((12.5, 16),)
-    metabolic_cost = (2**-6,)
+    MC_simulations = 40
+    env_param = ((12.5, 16), (100, 2), (400, .5))  # (lambda_rate, resource_energy)
+    metabolic_cost = (2**-6, 2**-5, 2**-4, 2**-3, 2**-2, 2**-1, 1)  # C values
     metrics = SimulationMetrics()
     start_time = time.time()
-    for param in env_param:
-        lambda_rate = param[0]
-        F = param[1]
+    print(f"Running {MC_simulations * len(env_param) * len(metabolic_cost)} simulations.")
+    for lambda_rate, F in env_param:
         sim_config["env"]["lambda_rate"] = lambda_rate
         sim_config["env"]["resource_energy"] = F
         print(f"Running simulations for lambda_rate: {lambda_rate}, resource_energy: {F}")
@@ -47,12 +46,12 @@ if __name__ == "__main__":
         env_time = time.time()
         for c in metabolic_cost:
             sim_config["initial_agents"]["C"] = c
-            print(f"Running simulations for metabolic cost: {c} for lambda_rate: {param[0]}, resource_energy: {param[1]}")
+            print(f"Running simulations for metabolic cost: {c} for lambda_rate: {lambda_rate}, resource_energy: {F}")
 
             cost_time = time.time()
             for i in range(MC_simulations):
                 sim = Simulation(sim_config)
-                print(f"Running simulation {i+1}/{MC_simulations} with C={c} for lambda_rate: {param[0]}, resource_energy: {param[1]}")
+                print(f"Running simulation {i+1}/{MC_simulations} with C={c} for lambda_rate: {lambda_rate}, resource_energy: {F}")
                 _ = run_simulation(sim, metrics, F, lambda_rate, i, steps=max_steps, dt=dt)
 
             cost_time = time.time() - cost_time
