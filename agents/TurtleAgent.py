@@ -11,7 +11,8 @@ class TurtleAgent:
 
     c_a: float
     c_s: float
-    meals: int = 0   # Meals counter
+    gen: int
+    id : int
     birth_mult = 3
 
 
@@ -30,7 +31,6 @@ class TurtleAgent:
 
         dist_diff = resource_dist - self.speed *dt
         if dist_diff <= 0:
-            self.meals += 1
             return resource_index, dist_diff, tuple(resource_pos)
         else:
             return None
@@ -50,7 +50,7 @@ class TurtleAgent:
         if np.random.rand() < 1 - np.exp(-fr * dt):
             self.theta = np.random.uniform(0, 2 * np.pi)
 
-    def reproduce(self, sigma_s: float, sigma_a: float):
+    def reproduce(self, sigma_s: float, sigma_a: float, ID: int):
         n_children = self.birth_mult
         child_energy = self.energy / (n_children*2)
         self.energy /= 2
@@ -65,7 +65,7 @@ class TurtleAgent:
         child_acuities = np.maximum(0, self.acuity + acuity_variation)
 
         # Create list of Agent instances
-        children = [
+        children = self.gen + 1, [
             TurtleAgent(
                 pos=self.pos.copy(),
                 speed=child_speeds[i],
@@ -73,7 +73,9 @@ class TurtleAgent:
                 energy=child_energy,
                 theta=thetas[i],
                 c_a=self.c_a,
-                c_s=self.c_s
+                c_s=self.c_s,
+                gen=self.gen + 1,
+                id = ID
             ) for i in range(n_children)
         ]
 

@@ -9,10 +9,20 @@ from agents.RaptorAgent import RaptorAgent
 class Simulation:
     def __init__(self, config):
         self.env = Environment(**config['env'])
-        self.agents = initialize_agents(**config['initial_agents'])
         self.config = config
-        self.time = 0.0
         self.rng = np.random.default_rng()
+        self.max_gen = 0
+        self.time = 0.0
+        self.currentID = 0
+        self.agents = self.initialize_agents(**config['initial_agents'])
+
+    def generate_id(self):
+        """
+        Generate a unique ID for an agent.
+        """
+        agent_id = self.currentID
+        self.currentID += 1
+        return agent_id
 
     def prob_birth(self, E, dt, agent_mult):
         """
@@ -38,6 +48,7 @@ class Simulation:
         return 1 - np.exp(-rate * dt)
 
     def step(self, dt):
+        new_gen = False
         
         self.env.spawn_resources(dt)
         
@@ -64,10 +75,13 @@ class Simulation:
         for agent in self.agents[:]:
             # Reproduction
             if self.rng.random() < self.prob_birth(agent.energy, dt, agent.birth_mult):
-                survivors.extend(agent.reproduce(
+                gen, babys = agent.reproduce(
                     self.config['sigma_s'],
-                    self.config['sigma_a']
-                ))
+                    self.config['sigma_a'],
+                    self.generate_id()
+                )
+                survivors.extend(babys)
+                self.max_gen = max(self.max_gen, gen)
 
             # Death
             if self.rng.random() < self.prob_death(agent.energy, dt):
@@ -76,44 +90,40 @@ class Simulation:
             survivors.append(agent)
         
         self.agents = survivors
-
-        """
-        for agent in self.agents[:]:  # Copy to safely modify during iteration
-            closest_resource = agent.closest_food_in_range(self.env.resources, self.env.size)
-
-            starting_pos = agent.pos.copy()
-
-            if closest_resource != None:
-                closest_resource_pos = closest_resource[0]
-                closest_resource_idx = closest_resource[1]
-                agent.set_theta_to_resource(closest_resource_pos,self.env.size)
-            else:
-                agent.maybe_tumble(self.config['eta'], dt)
-            
-            agent.move(dt, self.env.size)
-            agent.consume_energy(self.config['c_s'], self.config['c_a'], dt)
-            
-            ending_pos = agent.pos
-
-            # Resource consumption
-            if closest_resource != None and intercepts(starting_pos, ending_pos, closest_resource_pos, self.env.size):
-                agent.energy += self.env.resource_energy
-                self.env.remove_resource(closest_resource_idx)
-        
-
-            # Reproduction
-            if agent.energy > self.config['E_birth_threshold']:
-                self.agents.append(agent.reproduce(
-                    self.config['sigma_s'],
-                    self.config['sigma_a']
-                ))
-
-            # Death
-            if agent.energy <= 0:
-                self.agents.remove(agent)
-        """
-
         self.time += dt
+        return self.max_gen
+
+
+    def initialize_agents(self, n_agents: int, starting_energy: float, size: float, c_a: float, c_s: float, C: float, mode: str, speed: float , acuity: float):
+        agents = []
+        for i in range(n_agents):
+            pos = np.random.rand(2) * size
+            species = [Agent, SlothAgent, TurtleAgent, RaptorAgent]
+            if (mode == "SAME_COST"):
+                speed = np.random.uniform(0, np.sqrt(C/c_s))
+                acuity = get_acuity_from_speed(speed, c_a, c_s, C)
+                AgentClass = Agent
+            elif (mode == "UNIFORM") :
+                speed = np.random.uniform(0, 0.2)
+                acuity = np.random.uniform(0, 0.2)
+                AgentClass = Agent
+            elif (mode == "DEFINED"):
+                speed = speed
+                acuity = acuity
+                AgentClass = Agent
+            elif (mode == "SPECIES"):
+                speed = np.random.uniform(0, 0.2)
+                acuity = np.random.uniform(0, 0.2)
+                AgentClass = species[i%4]
+            else:
+                raise ValueError("Invalid mode specified. Choose from 'SAME_COST', 'UNIFORM', 'DEFINED', or 'SPECIES'.")
+
+            theta = np.random.uniform(0, 2 * np.pi)
+            agents.append(AgentClass(pos=pos, speed=speed, acuity=acuity, energy=starting_energy, theta=theta, c_a=c_a, c_s=c_s, gen=0, id= self.generate_id()))
+        return agents
+
+def get_acuity_from_speed(speed: float, c_a:float, c_s:float, C: float):
+    return (C - c_s*speed**2) / c_a
 
 def torus_displacement(a, b, size):
     """Shortest displacement from a to b on a torus."""
@@ -125,35 +135,4 @@ def intercepts(start_pos, end_pos, resource_pos, size):
     dist_to_resource = np.linalg.norm(to_resource)
     dist_to_end = np.linalg.norm(to_end)
     return dist_to_resource <= dist_to_end
-
-def initialize_agents(n_agents: int, starting_energy: float, size: float, c_a: float, c_s: float, C: float, mode: str, speed: float , acuity: float):
-    agents = []
-    for i in range(n_agents):
-        pos = np.random.rand(2) * size
-        species = [Agent, SlothAgent, TurtleAgent, RaptorAgent]
-        if (mode == "SAME_COST"):
-            speed = np.random.uniform(0, np.sqrt(C/c_s))
-            acuity = get_acuity_from_speed(speed, c_a, c_s, C)
-            AgentClass = Agent
-        elif (mode == "UNIFORM") :
-            speed = np.random.uniform(0, 0.2)
-            acuity = np.random.uniform(0, 0.2)
-            AgentClass = Agent
-        elif (mode == "DEFINED"):
-            speed = speed
-            acuity = acuity
-            AgentClass = Agent
-        elif (mode == "SPECIES"):
-            speed = np.random.uniform(0, 0.2)
-            acuity = np.random.uniform(0, 0.2)
-            AgentClass = species[i%4]
-
-
-        theta = np.random.uniform(0, 2 * np.pi)
-        agents.append(AgentClass(pos=pos, speed=speed, acuity=acuity, energy=starting_energy, theta=theta, c_a=c_a, c_s=c_s))
-    return agents
-
-def get_acuity_from_speed(speed: float, c_a:float, c_s:float, C: float):
-    return (C - c_s*speed**2) / c_a
-
 
