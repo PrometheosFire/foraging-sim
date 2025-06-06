@@ -72,7 +72,7 @@ class Simulation:
         
         survivors = []
 
-        for agent in self.agents[:]:
+        for agent in self.agents:
             # Reproduction
             if self.rng.random() < self.prob_birth(agent.energy, dt, agent.birth_mult):
                 gen, babys = agent.reproduce(
