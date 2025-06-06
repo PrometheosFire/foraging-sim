@@ -1,7 +1,10 @@
 import numpy as np
 from agents.agent import Agent
+from agents.SlothAgent import SlothAgent
+from agents.TurtleAgent import TurtleAgent
 from env.environment import Environment
 from env.spatial_grid import SpatialGrid
+from agents.RaptorAgent import RaptorAgent
 
 class Simulation:
     def __init__(self, config):
@@ -11,13 +14,13 @@ class Simulation:
         self.time = 0.0
         self.rng = np.random.default_rng()
 
-    def prob_birth(self, E, dt):
+    def prob_birth(self, E, dt, agent_mult):
         """
         Compute probability of reproduction during dt, based on metabolic energy.
         """
         alpha = self.config['alpha']
         beta = self.config['beta']
-        K_b = self.config['K_b']
+        K_b = self.config['K_b'] * agent_mult
         E = np.maximum(E, 1e-12)
         rate = beta * (E ** alpha) / (E ** alpha + K_b ** alpha)
         return 1 - np.exp(-rate * dt)
@@ -60,8 +63,8 @@ class Simulation:
 
         for agent in self.agents[:]:
             # Reproduction
-            if self.rng.random() < self.prob_birth(agent.energy, dt):
-                survivors.append(agent.reproduce(
+            if self.rng.random() < self.prob_birth(agent.energy, dt, agent.birth_mult):
+                survivors.extend(agent.reproduce(
                     self.config['sigma_s'],
                     self.config['sigma_a']
                 ))
@@ -136,8 +139,9 @@ def initialize_agents(n_agents: int, starting_energy: float, size: float, c_a: f
         elif (mode == "DEFINED"):
             speed = speed
             acuity = acuity
+
         theta = np.random.uniform(0, 2 * np.pi)
-        agents.append(Agent(pos=pos, speed=speed, acuity=acuity, energy=starting_energy, theta=theta, c_a=c_a, c_s=c_s))
+        agents.append(RaptorAgent(pos=pos, speed=speed, acuity=acuity, energy=starting_energy, theta=theta, c_a=c_a, c_s=c_s))
     return agents
 
 def get_acuity_from_speed(speed: float, c_a:float, c_s:float, C: float):

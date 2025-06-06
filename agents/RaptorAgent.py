@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import numpy as np
 
 @dataclass(slots=True)
-class Agent:
+class RaptorAgent:
     pos: np.ndarray  # Position: shape (2,)
     speed: float     # Agent speed
     acuity: float    # Sensory range
@@ -18,30 +18,43 @@ class Agent:
     def move(self, dt: float, domain_size, resources):
         resources = self.closest_food_in_range(resources, domain_size)
         if resources is None:
-            self.run(dt, domain_size)
+            mode = "NORMAL"
+            self.run(dt, domain_size, mode)
             self.maybe_tumble(eta=1.0, dt=dt)
-            self.consume_energy(dt)
+            self.consume_energy(dt, mode)
             return None
         
+        mode = "POUNCE"
         resource_pos, resource_index, resource_dist = resources
         self.set_theta_to_resource(resource_pos, domain_size)
-        self.run(dt, domain_size)
-        self.consume_energy(dt)
+        self.run(dt, domain_size, mode)
+        self.consume_energy(dt, mode)
 
         dist_diff = resource_dist - self.speed *dt
         if dist_diff <= 0:
-            return resource_index, dist_diff, tuple(resource_pos)
+            self.meals += 1
+            return resource_index, dist_diff
         else:
             return None
 
-    def run(self, dt: float, domain_size: float = 1.0,  eta: float = 1.0):
+    def run(self, dt: float, domain_size: float = 1.0,  mode : str = "NORMAL", eta: float = 1.0):
         # Calculate displacement
-        dx = self.speed * dt * np.array([np.cos(self.theta), np.sin(self.theta)])
+        if mode == "POUNCE":
+            speed_mult = 2
+        else:
+            speed_mult = 1
+    
+        dx = speed_mult * self.speed * dt * np.array([np.cos(self.theta), np.sin(self.theta)])
+        print(speed_mult*self.speed)
         self.pos = (self.pos + dx) % domain_size  # Periodic boundary
 
 
-    def consume_energy(self, dt: float):
-        cost = (self.c_s * self.speed**2 + self.c_a * self.acuity) * dt
+    def consume_energy(self, dt: float, mode: str):
+        if mode == "POUNCE":
+            speed_mult = 2
+        else:
+            speed_mult = 1
+        cost = (speed_mult * self.c_s * self.speed**2 + self.c_a * self.acuity) * dt
         self.energy -= cost
 
     def maybe_tumble(self, eta: float, dt: float):
@@ -54,7 +67,7 @@ class Agent:
         child_acuity = max(0, self.acuity + np.random.normal(0, sigma_a))
         child_energy = self.energy / 2
         self.energy /= 2
-        return Agent(
+        return [RaptorAgent(
             pos=self.pos.copy(),
             speed=child_speed,
             acuity=child_acuity,
@@ -62,7 +75,7 @@ class Agent:
             theta=np.random.uniform(0, 2 * np.pi),
             c_a=self.c_a,
             c_s=self.c_s
-        )
+        )]
     
     def closest_food_in_range(self, resources, size):
         if not resources:

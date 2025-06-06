@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import numpy as np
 
 @dataclass(slots=True)
-class Agent:
+class TurtleAgent:
     pos: np.ndarray  # Position: shape (2,)
     speed: float     # Agent speed
     acuity: float    # Sensory range
@@ -12,7 +12,7 @@ class Agent:
     c_a: float
     c_s: float
     meals: int = 0   # Meals counter
-    birth_mult = 1
+    birth_mult = 3
 
 
     def move(self, dt: float, domain_size, resources):
@@ -30,7 +30,8 @@ class Agent:
 
         dist_diff = resource_dist - self.speed *dt
         if dist_diff <= 0:
-            return resource_index, dist_diff, tuple(resource_pos)
+            self.meals += 1
+            return resource_index, dist_diff
         else:
             return None
 
@@ -50,19 +51,34 @@ class Agent:
             self.theta = np.random.uniform(0, 2 * np.pi)
 
     def reproduce(self, sigma_s: float, sigma_a: float):
-        child_speed = max(0, self.speed + np.random.normal(0, sigma_s))
-        child_acuity = max(0, self.acuity + np.random.normal(0, sigma_a))
-        child_energy = self.energy / 2
+        n_children = self.birth_mult
+        child_energy = self.energy / (n_children*2)
         self.energy /= 2
-        return Agent(
-            pos=self.pos.copy(),
-            speed=child_speed,
-            acuity=child_acuity,
-            energy=child_energy,
-            theta=np.random.uniform(0, 2 * np.pi),
-            c_a=self.c_a,
-            c_s=self.c_s
-        )
+
+        # Generate random variations for speed, acuity, and theta
+        speed_variation = np.random.normal(0, sigma_s, n_children)
+        acuity_variation = np.random.normal(0, sigma_a, n_children)
+        thetas = np.random.uniform(0, 2 * np.pi, n_children)
+
+        # Calculate child attributes with clipping at 0
+        child_speeds = np.maximum(0, self.speed + speed_variation)
+        child_acuities = np.maximum(0, self.acuity + acuity_variation)
+
+        # Create list of Agent instances
+        children = [
+            TurtleAgent(
+                pos=self.pos.copy(),
+                speed=child_speeds[i],
+                acuity=child_acuities[i],
+                energy=child_energy,
+                theta=thetas[i],
+                c_a=self.c_a,
+                c_s=self.c_s
+            ) for i in range(n_children)
+        ]
+
+        return children
+
     
     def closest_food_in_range(self, resources, size):
         if not resources:

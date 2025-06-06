@@ -3,9 +3,9 @@
 env = {
     "size": 1.0,
     "resource_mode":"CONSTANT", #RATE / CONSTANT
-    "resource_energy": 1,
+    "resource_energy": 4,
     "lambda_rate": 200,     # only relevant for RATE mode
-    "resource_cap":100      # only relevant for CONSTANT mode
+    "resource_cap":10      # only relevant for CONSTANT mode
 }
 
 
@@ -20,7 +20,7 @@ c_s = 160
 c_a = 4
 
 alpha = 4
-beta = 0
+beta = 1
 delta = 0
 delta_0 = 0
 K_b = 10
