@@ -11,6 +11,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     config_name = sys.argv[1]
+    MC_start = int(sys.argv[2])
     config = importlib.import_module(config_name)
 
     sim_config = {
@@ -31,8 +32,8 @@ if __name__ == "__main__":
 
     dt = 0.1
 
-    MC_start = 0
-    MC_simulations = 1
+    #MC_start = 0
+    MC_simulations = 10
     env_param = ((50, 4, 400), (200, 1, 100), (800, .25, 50))  # (lambda_rate, resource_energy, max_gen)
     #max_gens = (20000, 500, 500)
 
