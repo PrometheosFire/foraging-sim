@@ -32,7 +32,7 @@ if __name__ == "__main__":
     max_steps = 2000
     dt = 0.1
 
-    MC_simulations = 40
+    MC_simulations = 10
     env_param = ((12.5, 16), (100, 2), (400, .5))  # (lambda_rate, resource_energy)
     metabolic_cost = (2**-6, 2**-5, 2**-4, 2**-3, 2**-2, 2**-1, 1)  # C values
     metrics = SimulationMetrics()
