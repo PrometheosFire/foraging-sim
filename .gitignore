@@ -3,3 +3,4 @@ __pycache__/
 .env
 .ipynb_checkpoints
 venv_aasma/
+/evaluation/simulation_results/3_4*
