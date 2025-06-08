@@ -3,7 +3,7 @@ import importlib
 import time
 from sim.simulation import Simulation
 from evaluation.metrics3_4 import SimulationMetrics
-from graphics.dataLoader3_4 import run_simulation
+from runners.dataLoader3_4 import run_simulation
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -18,8 +18,6 @@ if __name__ == "__main__":
         "env": config.env,
         "initial_agents": config.initial_agents,
         "eta": config.eta,
-        "c_s": config.c_s,
-        "c_a": config.c_a,
         "sigma_s": config.sigma_s,
         "sigma_a": config.sigma_a,
         "alpha": config.alpha,

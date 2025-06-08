@@ -15,10 +15,6 @@ eta = 2**-4
 sigma_s = 2.5*(10**-3)
 sigma_a = 2.5*(10**-3)
 
-size = 1.0
-lambda_rate = 100
-resource_energy = 1.0
-eta = 0.1
 c_s = 160
 c_a = 4
 

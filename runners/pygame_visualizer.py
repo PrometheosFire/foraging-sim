@@ -13,6 +13,8 @@ RED = (255, 0, 0)
 BLACK = (30,30,30)
 GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
+FOOD = (255, 140, 0)  # Orange color for food
+LIGHT_PINK = (255, 182, 193)
 
 color_map = {
     RaptorAgent: RED,
@@ -78,7 +80,7 @@ def run_pygame(simulation, steps=1000, initial_dt=0.1, scale=600):
         # Draw environment (original visualization)
         for res in simulation.env.resources:
             pos_px = (int(res[0] * scale), int(res[1] * scale))
-            pygame.draw.rect(screen, WHITE, (*pos_px, 4, 4))
+            pygame.draw.rect(screen, LIGHT_PINK, (*pos_px, 4, 4))
 
         for agent in simulation.agents:
             agentColor = getAgentColor(agent)

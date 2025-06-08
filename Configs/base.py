@@ -3,24 +3,18 @@
 env = {
     "size": 1.0,
     "resource_mode":"RATE", #RATE / CONSTANT
-    "resource_energy": 0.5,
-    "lambda_rate": 400,     # only relevant for RATE mode
-    "resource_cap":0        # only relevant for CONSTANT mode
+    "resource_energy": 4,
+    "lambda_rate": 50,     # only relevant for RATE mode
+    "resource_cap": 100,        # only relevant for CONSTANT mode
 }
 
 
 
 # Simulation parameters
-eta = 0.1
+eta = 2**-4
 sigma_s = 0
 sigma_a = 0
 
-size = 1.0
-lambda_rate = 100
-resource_energy = 1.0
-eta = 0.1
-c_s = 160
-c_a = 4
 
 alpha = 4
 beta = 1
@@ -31,11 +25,11 @@ K_d = 1
 
 # Initial agent settings
 initial_agents = {
-        "n_agents": 1000,
+        "n_agents": 50,
         "starting_energy": 10.0,
         "size": env["size"],
-        "c_a": c_a,
-        "c_s": c_s,
+        "c_a": 4,
+        "c_s": 160,
         "C": 1,
         "mode": "UNIFORM",         # SAME_COST / UNIFORM / DEFINED 
         "speed":0,

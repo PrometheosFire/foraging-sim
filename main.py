@@ -1,24 +1,20 @@
 import sys
 import importlib
 from sim.simulation import Simulation
-from graphics.visualizer import animate
-from graphics.pygame_visualizer import run_pygame
-from graphics.dataLoader import run_simulation
+from runners.pygame_visualizer import run_pygame
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python script.py <config_module>")
-        sys.exit(1)
+        config_name = "Configs.base"
+    else:
+        config_name = sys.argv[1]
 
-    config_name = sys.argv[1]
     config = importlib.import_module(config_name)
 
     sim_config = {
         "env": config.env,
         "initial_agents": config.initial_agents,
         "eta": config.eta,
-        "c_s": config.c_s,
-        "c_a": config.c_a,
         "sigma_s": config.sigma_s,
         "sigma_a": config.sigma_a,
         "alpha": config.alpha,
